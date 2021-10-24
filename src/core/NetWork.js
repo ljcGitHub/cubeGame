@@ -40,9 +40,15 @@ class NetWork {
       }
     })
   }
-  loadObjects(url, name) {
+  loadObjects(url) {
     return new Promise((resolve, reject) => {
-      const key = name ? url + '?' + name : url
+      let key = url
+      let name = ''
+      if (url.indexOf('?o=') > -1) {
+        const strs = url.split('?o=')
+        url = strs[0]
+        name = strs[1]
+      }
       if (this.objects[url]) {
         if (name) {
           if (this.objects[key]) {

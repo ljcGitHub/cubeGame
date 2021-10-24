@@ -1,6 +1,8 @@
 import THREE from '@/common/libs/Three'
 import Scene from '@/core/Scene'
 import Game from '@/core/Game'
+import { showButtonsPopup } from './ui/buttons'
+import { showBuildPopup } from './ui/buildList'
 
 export default class Home extends Scene{
   constructor() {
@@ -12,12 +14,12 @@ export default class Home extends Scene{
         './texture/button0.png',
         './texture/button1.png',
         './texture/button2.png',
+        './texture/list.png',
+        './texture/listItem.png',
       ]
     }
-    const geometry = new THREE.BoxGeometry(20, 20, 20);
-    const material = new THREE.MeshNormalMaterial( { color: 0xffff00 } );
-    const mesh = new THREE.Mesh(geometry, material);
-    Game.scene.add(mesh)
-    Game.scene.background = new THREE.Color(0x5896f7)
+    showButtonsPopup(this)
+    showBuildPopup(this)
+    Game.objectScene.background = new THREE.Color(0x5896f7)
   }
 }

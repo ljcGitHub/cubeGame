@@ -1,5 +1,6 @@
 import THREE from '@/common/libs/Three'
 import Game from '@/core/Game'
+import Event from '@/core/Event'
 
 /*
 const options = {
@@ -15,38 +16,50 @@ const options = {
 }
 */
 
-export default class Scene{
+export default class Scene {
   constructor(options = {}) {
     this.object3d = new THREE.Group()
     this.object2d = new THREE.Group()
+    this.object2d.lookAt(Game.uiCamera.position)
+    Game.objectScene.add(this.object3d)
+    Game.uiScene.add(this.object2d)
+    this.event = new Event(this)
     this.preload = options.preload || {} // 预加载资源
-    Game.scene.add(this.object3d)
-    Game.camera.add(this.object2d)
   }
   add(obj) {
-    if (obj.type === '3d') {
-      this.object3d.add()
+    if (obj.display === '3d') {
+      this.object3d.add(obj)
     } else {
-      this.object2d.add()
+      this.object2d.add(obj)
     }
   }
   remove(obj) {
-    if (obj.type === '3d') {
-      this.object3d.remove()
+    if (obj.display === '3d') {
+      this.object3d.remove(obj)
     } else {
-      this.object2d.remove()
+      this.object2d.remove(obj)
     }
   }
   update() {
-    for (const item of this.object2d) {
+    for (const item of this.object2d.children) {
       item.update()
     }
-    for (const item of this.object3d) {
+
+    for (const item of this.object3d.children) {
       item.update()
     }
   }
   destroy() {
-    Game.scene.remove(this.object3d)
-    Game.camera.remove(this.object2d)
+    this.event.destroy()
+    this.object3d.forEach(item => {
+      item.destroy && item.destroy()
+      this.remove(item)
+    })
+    this.object2d.forEach(item => {
+      item.destroy && item.destroy()
+      this.remove(item)
+    })
+    Game.objectScene.remove(this.object3d)
+    Game.uiScene.remove(this.object2d)
   }
 }

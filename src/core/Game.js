@@ -11,9 +11,10 @@ export default {
   // 帧数频率
   fps: Math.ceil(1000 / 60),
   // 场景
-  scene: new THREE.Scene(),
-  // 摄像机
-  camera: new THREE.OrthographicCamera(-innerWidth / 2, innerWidth / 2, innerHeight / 2, -innerHeight / 2, 1, 2000),
+  objectScene: new THREE.Scene(),
+  obejctCamera: new THREE.OrthographicCamera(-innerWidth / 2, innerWidth / 2, innerHeight / 2, -innerHeight / 2, 1, 2000),
+  uiScene: new THREE.Scene(),
+  uiCamera: new THREE.OrthographicCamera(-innerWidth / 2, innerWidth / 2, innerHeight / 2, -innerHeight / 2, 1, 2000),
   // 灯光
   light: new THREE.DirectionalLight(0xffffff, 0.2),
   // 渲染器
@@ -24,17 +25,29 @@ export default {
   raycaster: new THREE.Raycaster(),
   // 游戏场景
   gameScene: [],
+  // 任务队列
+  task: [],
+  // 任务队列
+  uiRenderOrder: 300,
+  uiObjRenderOrder: 200,
+  objRenderOrder: 400,
 
   // 开始游戏
   start() {
     // 场景设置
-    this.scene.add(this.camera)
-    this.scene.add(this.light)
-    this.camera.position.set(0, 400, 200)
-    this.camera.lookAt(new THREE.Vector3(0, 0, 0))
-    this.scene.add(new THREE.AmbientLight(0xdcdcdc))
+    this.objectScene.add(this.obejctCamera)
+    this.objectScene.add(this.light)
+    this.obejctCamera.position.set(0, 800, 400)
+    this.obejctCamera.zoom = 1.2
+		this.obejctCamera.updateProjectionMatrix()
+    this.obejctCamera.lookAt(new THREE.Vector3(0, 0, 0))
+    this.objectScene.add(new THREE.AmbientLight(0xdcdcdc))
+
+    this.uiScene.add(this.uiCamera)
+    this.uiCamera.position.set(0, 0, 1400)
 
     // 渲染器设置
+    this.renderer.autoClear = false
     this.renderer.shadowMap.enabled = true
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
     this.renderer.setSize(innerWidth, innerHeight)
@@ -52,10 +65,11 @@ export default {
     this.light.shadow.camera.bottom = 16
     this.light.position.set(-300, 300, 300)
 
-    this.controls = new OrbitControls(this.camera, window.canvas)
+    // this.controls = new OrbitControls(this.obejctCamera, window.canvas)
     Stats()
     
     this.loop()
+    window.game = this
   },
   
   loop() {
@@ -77,7 +91,9 @@ export default {
     this.updateRender()
 
     this.renderer.clear()
-    this.renderer.render(this.scene, this.camera)
+    this.renderer.render(this.objectScene, this.obejctCamera)
+    this.renderer.clearDepth()
+    this.renderer.render(this.uiScene, this.uiCamera)
   },
 
   // 逻辑帧
@@ -88,6 +104,14 @@ export default {
   // 渲染帧
   updateRender() {
     // 解析帧
+    // 更新队列函数
+    const task = [...this.task]
+    this.task = []
+    while (task.length) {
+      task.shift()()
+    }
+    // 更新物体内容
+    this.gameSceneInstance && this.gameSceneInstance.update()
   },
 
   // 新增场景
@@ -141,5 +165,9 @@ export default {
     Promise.all(rqs).then(posts => {
       callback()
     })
+  },
+
+  nextTick(cb) {
+    this.task.push(cb)
   }
 }
