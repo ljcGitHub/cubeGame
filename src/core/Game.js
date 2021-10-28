@@ -52,6 +52,7 @@ export default {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
     this.renderer.setSize(innerWidth, innerHeight)
     this.renderer.setPixelRatio(window.devicePixelRatio)
+    this.renderer.localClippingEnabled = true // 支持局部裁剪
 
     // 灯光，阴影设置
     this.light.castShadow = true
@@ -63,7 +64,7 @@ export default {
     this.light.shadow.camera.right = 16
     this.light.shadow.camera.top = -16
     this.light.shadow.camera.bottom = 16
-    this.light.position.set(-300, 300, 300)
+    this.light.position.set(-400, 1000, 400)
 
     // this.controls = new OrbitControls(this.obejctCamera, window.canvas)
     Stats()

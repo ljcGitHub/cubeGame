@@ -52,6 +52,7 @@ export default class Ui extends THREE.Mesh{
         const size = this.option.size || 1
         const box = new THREE.Box3()
         this.mesh.geometry.computeBoundingBox()
+        this.mesh.geometry.center()
         box.copy(this.mesh.geometry.boundingBox).applyMatrix4(this.mesh.matrixWorld)
         const s = getPixelRatio(size / (box.max.x - box.min.x))
         this.mesh.scale.set(s, s, s)
@@ -67,13 +68,21 @@ export default class Ui extends THREE.Mesh{
     if (this.option.material) {
       updateTarget.material = this.option.material
       updateTarget.material.needsUpdate = true
-    } else if (this.option.texture) {
-      updateTarget.material.map = texture
+    }
+    if (this.option.texture) {
+      if (updateTarget.material.constructor === THREE.ShaderMaterial) {
+        updateTarget.material.uniforms.u_texture.value = texture
+      } else {
+        updateTarget.material.map = texture
+      }
       updateTarget.material.needsUpdate = true
     } else if (this.option.imgUrl) {
       NetWork.loadTexture(this.option.imgUrl).then(texture => {
-        updateTarget.material.map = texture
-        updateTarget.material.needsUpdate = true
+        if (updateTarget.material.constructor === THREE.ShaderMaterial) {
+          updateTarget.material.uniforms.u_texture.value = texture
+        } else {
+          updateTarget.material.map = texture
+        }
       })
     }
   }
@@ -85,8 +94,8 @@ export default class Ui extends THREE.Mesh{
     let W = window.innerWidth
     let H = window.innerHeight
     if (this.parent && this.parent.option) {
-      W = this.parent.option.width || window.innerWidth
-      H = this.parent.option.height || window.innerHeight
+      W = getPixelRatio(this.parent.option.width) || window.innerWidth
+      H = getPixelRatio(this.parent.option.height) || window.innerHeight
     }
 
     if (top !== undefined) {

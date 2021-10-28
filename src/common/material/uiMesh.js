@@ -7,12 +7,16 @@ export const vertexShader = `
   varying vec3 vLight;
 
   uniform vec3 uLight;
+  uniform float utime;
 
   void main(){
+    float x = mod(utime, 400.0) / 400.0;
+    float y = smoothstep(0.0,0.5,x) - smoothstep(0.5, 1.0, x);
     vLight = normalize(uLight);
     vNormal = normalize(normal);
     vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    vec4 vPosition = modelMatrix * vec4(position, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * vPosition;
   }
 `
 export const fragmentShader = `
@@ -33,7 +37,8 @@ export const fragmentShader = `
 export const material = new THREE.ShaderMaterial({
   uniforms: {
     uTexture: { type: 't', value:  new THREE.TextureLoader().load(Color) },
-    uLight: { type: 'v3', value: new THREE.Vector3(-100, 140, 100) }
+    uLight: { type: 'v3', value: new THREE.Vector3(-100, 140, 100) },
+    utime: { type: 'f', value: 0 }
   },
   vertexShader,
   fragmentShader,

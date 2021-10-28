@@ -1,36 +1,25 @@
 import THREE from '@/common/libs/Three'
 import NetWork from './NetWork'
+import { materialClone, getPixelRatio } from '@/core/modules/shared'
+import Physical from '@/core/objectMixins/physical'
 import Game from '@/core/Game'
-import { clone, getPixelRatio } from '@/core/modules/shared'
-import {
-  physical, creatPhysicalBox, getBoxBorder
-} from '@/core/modules/physical'
 
-export default class Object3d extends THREE.Group {
+export default class Object3d extends Physical {
   constructor(option = {}, attribute = {}) {
-    super()
+    super(option, attribute)
     this.option = option
     this.display = '3d'
     this.mesh = option.mesh
-    this.position = attribute.position || new THREE.Vector3()
-    this.rotation = attribute.rotation || new THREE.Euler(0, 0, 0, 'XYZ')
-    this.scale = attribute.scale
-    this.physical = { ...clone(physical), ...(attribute.physical || {}) }
     this.add(option.mesh)
     this.updateMeshScale()
     this.updateMeshMaterial()
-    this.updateMeshPosition()
   }
 
   update() {
   }
   
-  updateMeshPosition() {
-    this.mesh.position.set(this.position.x, this.position.y, this.position.z)
-    this.mesh.rotation.set(this.rotation.x, this.rotation.y, this.rotation.z)
-  }
   updateMeshScale() {
-    const size = this.scale || 20
+    const size = this.option.size || 20
     const box = new THREE.Box3()
     this.mesh.geometry.computeBoundingBox()
     box.copy(this.mesh.geometry.boundingBox).applyMatrix4(this.mesh.matrixWorld)
@@ -40,7 +29,9 @@ export default class Object3d extends THREE.Group {
 
   updateMeshMaterial() {
     if (this.option.material) {
-      this.mesh.material = this.option.material
+      this.mesh.material = materialClone(this.option.material, this.option.isNotMaterialClone)
+      this.mesh.material.uniforms.uTexture = this.option.material.uniforms.uTexture
+      this.mesh.material.uniforms.uMatCap = this.option.material.uniforms.uMatCap
       this.mesh.material.needsUpdate = true
     } else if (this.option.texture) {
       this.mesh.material.map = texture
@@ -52,11 +43,7 @@ export default class Object3d extends THREE.Group {
       })
     }
   }
-
-  creatPhysicalBox() {
-    creatPhysicalBox(this.position, option)
-  }
-
+  
   destroy() {
     this.children.forEach(item => {
       item.destroy && item.destroy()

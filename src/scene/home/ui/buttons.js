@@ -1,6 +1,6 @@
-import { material } from '@/common/material/button'
 import Ui from '@/core/Ui'
 import NetWork from '@/core/NetWork'
+import Bus from '@/store/bus'
 
 let buttons = {}
 
@@ -40,6 +40,14 @@ export const showButtonsPopup = function (scene) {
     bottom: 10,
     imgUrl: './texture/button1.png'
   })
+  buttons.b2.click = function () {
+    Bus.emit('showBuild')
+  }
   scene.add(buttons.b1)
   scene.add(buttons.b2)
+}
+
+export const hideButtonsPopup = function (scene) {
+  scene.remove(buttons.b1)
+  scene.remove(buttons.b2)
 }

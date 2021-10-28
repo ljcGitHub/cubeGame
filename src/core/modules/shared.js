@@ -56,3 +56,15 @@ export const getPlaneGeometry = function (option) {
   const size = option.size || 10
   return new THREE.PlaneGeometry(getPixelRatio(option.width || size), getPixelRatio(option.height || size))
 }
+
+export const materialClone = function (material, isClone) {
+  if (isClone) return material
+  const m = material.clone()
+  for (const key in material.uniforms) {
+    const item = material.uniforms[key]
+    if (item.type === 't') {
+      m.uniforms[key] = item
+    }
+  }
+  return m
+}

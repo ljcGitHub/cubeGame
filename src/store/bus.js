@@ -25,7 +25,7 @@ class Dep{
     }
   }
 
-  off(type) {
+  off(type, fn) {
     let events = this.events[type]
     if (!events)  return
 

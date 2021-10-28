@@ -106,3 +106,5 @@ export const getBgTransparent = function (option = {}) {
 }
 
 export const Color = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAABCAYAAAAxWXB3AAAAAXNSR0IArs4c6QAAALNJREFUOE9j3Bng/d+Y9yuDsMEBhv/2KgyMn+Yz3Nz1kEE+SZTh26t7DF9MEhhm/fjHsPrJBwbFHZcYmM5fYWB8dolBQUiKwZxbnSGsXIjhz53DDDdv/2B4+uQ3w93n3xiefPzJ8OLrDwZT1Q8MxhX8DAduf2c4ck2Yge2hMENPSgzDjSu3GB7cf8pw9/Ejhvq2Nob1GzYxXL50geH69esMEhISDKNgNARGQ4D2IbB48WJGAGYiRgLaQLa+AAAAAElFTkSuQmCC'
+
+export const MatCap = './texture/matCap.png'

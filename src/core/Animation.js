@@ -5,7 +5,7 @@ import { nullFunc } from '@/core/modules/shared'
 export default class Animation {
   constructor(easing, duration, tick, callback) {
     this._animation = true
-    this.setEasing(duration)
+    this.setEasing(easing)
     this.setDuration(duration)
     this._tick = tick || nullFunc
     this._callback = callback || nullFunc
@@ -13,10 +13,8 @@ export default class Animation {
   setEasing(easing) {
     if (easing && easing.constructor === Array) {
       this._easingFunc = easing.map(es => getEasingFn(es))
-    } else if (easing && typeof easing === 'function'){
-      this._easingFunc = getEasingFn(easing)
     } else {
-      this._easingFunc = Easing.Linear
+      this._easingFunc = getEasingFn(easing)
     }
   }
   setDuration(duration) {

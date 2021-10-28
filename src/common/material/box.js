@@ -1,21 +1,22 @@
 import THREE from '@/common/libs/Three'
-import { Color } from '@/common/utils/canvas'
-import Game from '@/core/Game'
+import { Color, MatCap } from '@/common/utils/canvas'
 
 export const vertexShader = `
   ${THREE.ShaderChunk['common']}
   ${THREE.ShaderChunk['shadowmap_pars_vertex']}
 
+  varying vec2 vPoint;
   varying vec2 vUv;
-  varying vec3 vNormal;
-  varying vec3 vLight;
   varying vec4 vPosition;
 
   uniform vec3 uLight;
 
   void main(){
-    vLight = normalize(uLight);
-    vNormal = normalize(normal);
+    vec3 e = normalize(vec3(modelViewMatrix * vec4(position, 1.0)));
+    vec3 n = normalize( normalMatrix * normal );
+    vec3 r = reflect( e, n );
+    float m = 2.0 * sqrt(pow( r.x, 2. ) + pow( r.y, 2. ) + pow( r.z + 1.0, 2.0));
+    vPoint = r.xy / m + .5;
     vUv = uv;
     vPosition = modelMatrix * vec4(position, 1.0);
     gl_Position = projectionMatrix * viewMatrix * vPosition;
@@ -29,14 +30,15 @@ export const vertexShader = `
   }
 `
 export const fragmentShader = `
-  varying vec2 vUv;
-  varying vec3 vNormal;
-  varying vec3 vLight;
   varying vec4 vPosition;
+  varying vec2 vPoint;
+  varying vec2 vUv;
 
   uniform sampler2D uTexture;
+  uniform sampler2D uMatCap;
   uniform float uWaterHeight;
   uniform float uBubbleHeight;
+  uniform float uBuildStatus;
 
   ${THREE.ShaderChunk['common']}
   ${THREE.ShaderChunk['packing']}
@@ -45,32 +47,39 @@ export const fragmentShader = `
   ${THREE.ShaderChunk['shadowmask_pars_fragment']}
 
   void main(){
+    vec4 matCapColor = texture2D(uMatCap, vPoint);
     vec4 color = texture2D(uTexture, vUv);
-    float diffuse = max(0.1, dot(vLight, vNormal)) * 0.2 + 0.8;
-    vec4 fragColor = color * diffuse;
     float mask = getShadowMask();
     float colorShadow = 1.0;
     if (mask == 0.0) {
       colorShadow = 0.72;
     }
+    matCapColor = smoothstep(0.0, 1.0, matCapColor);
     vec4 waterColor = vec4(0.34, 0.592, 0.968, 1.0);
     if (vPosition.y < uBubbleHeight && vPosition.y > uWaterHeight) {
-      fragColor = vec4(1.0);
+      color = vec4(1.0);
     } else if (vPosition.y < uWaterHeight) {
-      fragColor = fragColor * waterColor;
+      color = color * waterColor;
     } else {
-      fragColor = fragColor * colorShadow * diffuse;
+      color = color * colorShadow * matCapColor;
     }
-    gl_FragColor = vec4(fragColor.rgb, 1.0);
+    float opacity = 1.0;
+    if (uBuildStatus == 0.0) {
+      vec3 red = vec3(0.9, 0.0, 0.0);
+      color.rgb = color.rgb * red;
+      opacity = 0.68;
+    }
+    gl_FragColor = vec4(color.rgb, opacity);
   }
 `
 
 export const material = new THREE.ShaderMaterial({
   uniforms: {
     uTexture: { type: 't', value:  new THREE.TextureLoader().load(Color) },
-    uLight: { type: 'v3', value: Game.light.position },
+    uMatCap: {type: 't', value: new THREE.TextureLoader().load(MatCap) },
     uBubbleHeight: { type: 'f', value: -4},
     uWaterHeight: { type: 'f', value: -6},
+    uBuildStatus: { type: 'f', value: 1.0},
   },
   vertexShader,
   fragmentShader,
