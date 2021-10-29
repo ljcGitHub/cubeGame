@@ -30,8 +30,8 @@ export default class Object3d extends Physical {
   updateMeshMaterial() {
     if (this.option.material) {
       this.mesh.material = materialClone(this.option.material, this.option.isNotMaterialClone)
-      this.mesh.material.uniforms.uTexture = this.option.material.uniforms.uTexture
-      this.mesh.material.uniforms.uMatCap = this.option.material.uniforms.uMatCap
+      this.mesh.material.uniforms.u_texture = this.option.material.uniforms.u_texture
+      this.mesh.material.uniforms.u_matCap = this.option.material.uniforms.u_matCap
       this.mesh.material.needsUpdate = true
     } else if (this.option.texture) {
       this.mesh.material.map = texture
@@ -45,7 +45,8 @@ export default class Object3d extends Physical {
   }
   
   destroy() {
-    this.children.forEach(item => {
+    const children = [...this.children]
+    children.forEach(item => {
       item.destroy && item.destroy()
       this.remove(item)
     })

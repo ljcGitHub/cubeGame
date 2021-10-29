@@ -1,7 +1,6 @@
 
 import THREE from '@/common/libs/Three'
 import { clone, getPixelRatio } from '@/core/modules/shared'
-import Build from '@/core/objectMixins/build'
 
 // 物理盒子
 const physical = {
@@ -16,7 +15,7 @@ const physical = {
 
 const _offser = { x: 0, y: 0, z: 0 }
 
-export default class Physical extends Build {
+export default class Physical extends THREE.Group {
   constructor(option = {}, attribute = {}) {
     super(option, attribute)
     this.physical = { ...clone(physical), ...(attribute.physical || {}) }

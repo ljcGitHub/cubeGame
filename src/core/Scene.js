@@ -51,11 +51,13 @@ export default class Scene {
   }
   destroy() {
     this.event.destroy()
-    this.object3d.forEach(item => {
+    const object3d = [...this.object3d]
+    object3d.forEach(item => {
       item.destroy && item.destroy()
       this.remove(item)
     })
-    this.object2d.forEach(item => {
+    const object2d = [...this.object2d]
+    object2d.forEach(item => {
       item.destroy && item.destroy()
       this.remove(item)
     })

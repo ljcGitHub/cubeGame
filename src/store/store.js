@@ -4,7 +4,8 @@ import builds from './builds'
 export const state = {
   // 建造方块
   builds,
-  tabValue: ''
+  buildSelectCode: '', // 建造的选中的对象code
+  tabValue: '', // 弹窗的选中内容
 }
 
 export const mutations = {

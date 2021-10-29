@@ -23,6 +23,9 @@ export default class Ui extends THREE.Mesh{
   }
 
   update() {
+    for (const item of this.children) {
+      item.update && item.update()
+    }
   }
 
   add(mesh) {
@@ -54,7 +57,7 @@ export default class Ui extends THREE.Mesh{
         this.mesh.geometry.computeBoundingBox()
         this.mesh.geometry.center()
         box.copy(this.mesh.geometry.boundingBox).applyMatrix4(this.mesh.matrixWorld)
-        const s = getPixelRatio(size / (box.max.x - box.min.x))
+        const s = getPixelRatio(size / (box.max.x - box.min.x)) * 0.8
         this.mesh.scale.set(s, s, s)
         this.mesh.rotation.set(Math.PI * 0.12, -Math.PI * 0.2, 0)
         updateTarget = this.mesh
@@ -116,7 +119,8 @@ export default class Ui extends THREE.Mesh{
   }
 
   destroy() {
-    this.children.forEach(item => {
+    const children = [...this.children]
+    children.forEach(item => {
       item.destroy && item.destroy()
       this.remove(item)
     })

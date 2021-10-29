@@ -51,6 +51,10 @@ const touchmove = function (e, intersectObjects) {
       const touche2 = e.touches[1]
       const d1 = getDistance({ x: touche.pageX, y: touche.pageY }, { x: touche2.pageX, y: touche2.pageY }) 
       const d2 = getDistance({ x: global.startX, y: global.startY }, { x: global.startX2, y: global.startY2 }) 
+      global.startX = touche.pageX
+      global.startY = touche.pageY
+      global.startX2 = touche2.pageX
+      global.startY2 = touche2.pageY
       if (d1 / d2 < 1) {
         // 缩小
         Game.obejctCamera.zoom = Math.max(minZoom, Math.min(maxZoom, Game.obejctCamera.zoom * 0.9))
@@ -59,10 +63,6 @@ const touchmove = function (e, intersectObjects) {
         Game.obejctCamera.zoom = Math.max(minZoom, Math.min(maxZoom, Game.obejctCamera.zoom / 0.9))
       }
       Game.obejctCamera.updateProjectionMatrix()
-      global.startX = touche.pageX
-      global.startY = touche.pageY
-      global.startX2 = touche2.pageX
-      global.startY2 = touche2.pageY
     } else if (e.touches.length === 1) {
       // 单指操作
       const touche = e.touches[0]

@@ -34,11 +34,11 @@ export const fragmentShader = `
   varying vec2 vPoint;
   varying vec2 vUv;
 
-  uniform sampler2D uTexture;
-  uniform sampler2D uMatCap;
-  uniform float uWaterHeight;
-  uniform float uBubbleHeight;
-  uniform float uBuildStatus;
+  uniform sampler2D u_texture;
+  uniform sampler2D u_matCap;
+  uniform float u_waterHeight;
+  uniform float u_bubbleHeight;
+  uniform float u_buildStatus;
 
   ${THREE.ShaderChunk['common']}
   ${THREE.ShaderChunk['packing']}
@@ -47,8 +47,8 @@ export const fragmentShader = `
   ${THREE.ShaderChunk['shadowmask_pars_fragment']}
 
   void main(){
-    vec4 matCapColor = texture2D(uMatCap, vPoint);
-    vec4 color = texture2D(uTexture, vUv);
+    vec4 matCapColor = texture2D(u_matCap, vPoint);
+    vec4 color = texture2D(u_texture, vUv);
     float mask = getShadowMask();
     float colorShadow = 1.0;
     if (mask == 0.0) {
@@ -56,15 +56,15 @@ export const fragmentShader = `
     }
     matCapColor = smoothstep(0.0, 1.0, matCapColor);
     vec4 waterColor = vec4(0.34, 0.592, 0.968, 1.0);
-    if (vPosition.y < uBubbleHeight && vPosition.y > uWaterHeight) {
+    if (vPosition.y < u_bubbleHeight && vPosition.y > u_waterHeight) {
       color = vec4(1.0);
-    } else if (vPosition.y < uWaterHeight) {
+    } else if (vPosition.y < u_waterHeight) {
       color = color * waterColor;
     } else {
       color = color * colorShadow * matCapColor;
     }
     float opacity = 1.0;
-    if (uBuildStatus == 0.0) {
+    if (u_buildStatus == 0.0) {
       vec3 red = vec3(0.9, 0.0, 0.0);
       color.rgb = color.rgb * red;
       opacity = 0.68;
@@ -75,11 +75,11 @@ export const fragmentShader = `
 
 export const material = new THREE.ShaderMaterial({
   uniforms: {
-    uTexture: { type: 't', value:  new THREE.TextureLoader().load(Color) },
-    uMatCap: {type: 't', value: new THREE.TextureLoader().load(MatCap) },
-    uBubbleHeight: { type: 'f', value: -4},
-    uWaterHeight: { type: 'f', value: -6},
-    uBuildStatus: { type: 'f', value: 1.0},
+    u_texture: { type: 't', value:  new THREE.TextureLoader().load(Color) },
+    u_matCap: {type: 't', value: new THREE.TextureLoader().load(MatCap) },
+    u_bubbleHeight: { type: 'f', value: -4},
+    u_waterHeight: { type: 'f', value: -6},
+    u_buildStatus: { type: 'f', value: 1.0},
   },
   vertexShader,
   fragmentShader,

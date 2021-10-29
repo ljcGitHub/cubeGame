@@ -1,5 +1,4 @@
 import THREE from '@/common/libs/Three'
-import { OrbitControls } from '@/common/libs/OrbitControls'
 import { Stats } from '@/common/libs/Stats'
 import NetWork from './NetWork'
 
@@ -68,7 +67,7 @@ export default {
 
     // this.controls = new OrbitControls(this.obejctCamera, window.canvas)
     this.objectScene.add(new THREE.AxesHelper(500))
-    Stats()
+    this.stats = Stats()
     
     this.loop()
     window.game = this
@@ -79,6 +78,9 @@ export default {
     this.now = timestamp()
     this.dt = this.dt + Math.min(1000, this.now - this.last)
     this.runTime = this.dt
+
+    this.stats.end()
+    this.stats.begin()
 
     this.update()
     this.last = this.now
