@@ -37,7 +37,7 @@ export default {
     // 场景设置
     this.objectScene.add(this.obejctCamera)
     this.objectScene.add(this.light)
-    this.obejctCamera.position.set(0, 800, 400)
+    this.obejctCamera.position.set(400, 800, 400)
     this.obejctCamera.zoom = 1.2
 		this.obejctCamera.updateProjectionMatrix()
     this.obejctCamera.lookAt(new THREE.Vector3(0, 0, 0))
@@ -67,6 +67,7 @@ export default {
     this.light.position.set(-400, 1000, 400)
 
     // this.controls = new OrbitControls(this.obejctCamera, window.canvas)
+    this.objectScene.add(new THREE.AxesHelper(500))
     Stats()
     
     this.loop()

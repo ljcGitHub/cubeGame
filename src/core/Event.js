@@ -57,6 +57,7 @@ export default class Event {
     }
     this.dispatch('touchstart', intersectObjects)
     this.intersectObjects = [...this.intersectObjects, ...intersectObjects]
+    this.touchstartExtens && this.touchstartExtens(e, this.intersectObjects)
   }
   touchmove(e) {
     if (!this.isTouch) return false
@@ -74,6 +75,7 @@ export default class Event {
       }
     }
     this.dispatch('touchmove', intersectObjects)
+    this.touchmoveExtens && this.touchmoveExtens(e, intersectObjects)
   }
   touchend(e) {
     const intersectObjects = []
@@ -96,6 +98,7 @@ export default class Event {
     }
     this.dispatch('touchend', intersectObjects)
     this.dispatch('click', clickObjects)
+    this.touchendExtens && this.touchendExtens(e, intersectObjects)
     this.isTouch = false
   }
   dispatch(type, intersectObjects) {

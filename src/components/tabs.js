@@ -1,7 +1,5 @@
 import THREE from '@/common/libs/Three'
-import Game from '@/core/Game'
 import Ui from '@/core/Ui'
-import NetWork from '@/core/NetWork'
 import { getPixelRatio } from '@/core/modules/shared'
 import { state } from '@/store/store'
 import { material } from '@/common/material/tabsButton'
