@@ -31,6 +31,7 @@ export default class Animation {
         val = this._easingFunc(this._step / this._maxStep, 0, 1, 1)
       }
       if (this._step >= this._maxStep) {
+        this._tick(val)
         this._callback(val)
       } else {
         const next = this._tick(val)

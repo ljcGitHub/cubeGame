@@ -26,20 +26,18 @@ export default {
   gameScene: [],
   // 任务队列
   task: [],
-  // 任务队列
-  uiRenderOrder: 300,
-  uiObjRenderOrder: 200,
-  objRenderOrder: 400,
+  // 主人公
+  target: new THREE.Vector3(0, 0, 0),
 
   // 开始游戏
   start() {
     // 场景设置
     this.objectScene.add(this.obejctCamera)
     this.objectScene.add(this.light)
-    this.obejctCamera.position.set(400, 800, 400)
+    this.obejctCamera.position.set(0, 800, 400)
     this.obejctCamera.zoom = 1.2
 		this.obejctCamera.updateProjectionMatrix()
-    this.obejctCamera.lookAt(new THREE.Vector3(0, 0, 0))
+    this.obejctCamera.lookAt(this.target)
     this.objectScene.add(new THREE.AmbientLight(0xdcdcdc))
 
     this.uiScene.add(this.uiCamera)
@@ -68,7 +66,7 @@ export default {
     // this.controls = new OrbitControls(this.obejctCamera, window.canvas)
     this.objectScene.add(new THREE.AxesHelper(500))
     this.stats = Stats()
-    
+
     this.loop()
     window.game = this
   },
@@ -171,6 +169,7 @@ export default {
     })
   },
 
+  // 任务队列
   nextTick(cb) {
     this.task.push(cb)
   }

@@ -29,6 +29,9 @@ export default class Event {
     this.isTouch = false
     this.sceneInstance = scene
     this.intersectObjects = []
+    this.touchstartExtens = []
+    this.touchmoveExtens = []
+    this.touchendExtens = []
     instances[this.uid] = this
   }
 
@@ -37,7 +40,9 @@ export default class Event {
     const uis = {}
     getEventIntersectObjects(this.sceneInstance.object2d.children, uis)
     const uiEvents = Object.values(uis)
-    const objEvents = this.sceneInstance.object3d.children
+    const objs = {}
+    getEventIntersectObjects(this.sceneInstance.object3d.children, objs)
+    const objEvents = Object.values(objs)
     const intersectObjects = []
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touche = e.changedTouches[i]
@@ -57,7 +62,9 @@ export default class Event {
     }
     this.dispatch('touchstart', intersectObjects)
     this.intersectObjects = [...this.intersectObjects, ...intersectObjects]
-    this.touchstartExtens && this.touchstartExtens(e, this.intersectObjects)
+    for (let i = 0; i < this.touchstartExtens.length; i++) {
+      this.touchstartExtens[i](e, this.intersectObjects)
+    }
   }
   touchmove(e) {
     if (!this.isTouch) return false
@@ -75,7 +82,9 @@ export default class Event {
       }
     }
     this.dispatch('touchmove', intersectObjects)
-    this.touchmoveExtens && this.touchmoveExtens(e, intersectObjects)
+    for (let i = 0; i < this.touchmoveExtens.length; i++) {
+      this.touchmoveExtens[i](e, intersectObjects)
+    }
   }
   touchend(e) {
     const intersectObjects = []
@@ -98,7 +107,9 @@ export default class Event {
     }
     this.dispatch('touchend', intersectObjects)
     this.dispatch('click', clickObjects)
-    this.touchendExtens && this.touchendExtens(e, intersectObjects)
+    for (let i = 0; i < this.touchendExtens.length; i++) {
+      this.touchendExtens[i](e, intersectObjects)
+    }
     this.isTouch = false
   }
   dispatch(type, intersectObjects) {

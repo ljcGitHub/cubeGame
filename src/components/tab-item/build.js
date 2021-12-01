@@ -1,9 +1,12 @@
+import THREE from '@/common/libs/Three'
 import Ui from '@/core/Ui'
 import { state } from '@/store/store'
 import { material } from '@/common/material/uiMesh'
 import { material as selectMaterial } from '@/common/material/select'
 import { getText } from '@/common/utils/canvas'
 import Game from '@/core/Game'
+import { getBuildsCode } from '@/store/builds'
+import { buildItemCreateAnimation } from '@/common/utils/animation'
 
 const Names = {
   box: '地面盒子',
@@ -14,6 +17,64 @@ const Names = {
 }
 
 let select = null
+let scene = null
+const mouse = new THREE.Vector2() // 鼠标坐标值
+const raycaster = new THREE.Raycaster() // 射线
+const gridSize = 20
+let touche = null
+let isTouch = null
+const geometry = new THREE.PlaneGeometry(1000, 1000)
+geometry.rotateX(- Math.PI / 2)
+const plane = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }))
+
+const touchstart = function (e, intersectObjects) {
+  if (intersectObjects.length) {
+    if (intersectObjects[0].intersects.length) {
+      const item = intersectObjects[0].intersects[0]
+      if (item.display === '2.5d' || item.display === '2d' || item.parent.display === '2.5d' || item.parent.display === '2d') {
+        return true
+      }
+    }
+  }
+  touche = e.touches[0]
+  isTouch = true
+}
+const touchmove = function (e, intersectObjects) {
+  if (isTouch) {
+    const _touche = e.touches[0]
+    if (Math.abs(touche.pageX - _touche.pageX) > gridSize ||
+      Math.abs(touche.pageY - _touche.pageY) > gridSize) {
+      isTouch = false
+    }
+  }
+}
+const touchend = function (e, intersectObjects) {
+  if (isTouch && state.buildSelectCode) {
+    mouse.x = (touche.pageX / window.innerWidth) * 2 - 1
+    mouse.y = - (touche.pageY / window.innerHeight) * 2 + 1
+    const boxs = []
+    Game.gameSceneInstance.object3d.children.forEach(item => {
+      if (item.buildType === 'box') {
+        boxs.push(item.mesh)
+      }
+    })
+    Game.objectScene.add(plane)
+    boxs.push(plane)
+    raycaster.setFromCamera(mouse, Game.obejctCamera)
+    const o = raycaster.intersectObjects(boxs)[0]
+    Game.objectScene.remove(plane)
+    if (o) {
+      const point = o.point.add(o.face.normal).divideScalar(gridSize).floor().multiplyScalar(gridSize).addScalar(gridSize / 2)
+      const getModel = getBuildsCode(state.buildSelectCode)
+      getModel().then(mesh => {
+        mesh.position.copy(point)
+        Game.gameSceneInstance.add(mesh)
+        buildItemCreateAnimation(mesh)
+      })
+    }
+  }
+  isTouch = false
+}
 
 export const click = function () {
   const code = this.option.code
@@ -82,6 +143,20 @@ export const createBuild = function (global) {
       select.material.uniforms.u_time.value += Game.fps
     }
     global.content.add(select)
+  } else {
+    global.content.add(select)
   }
+
+  global.scene.event.touchstartExtens.push(touchstart)
+  global.scene.event.touchmoveExtens.push(touchmove)
+  global.scene.event.touchendExtens.push(touchend)
+  scene = global.scene
   global.scrollHeight = top
+}
+
+export const deleteBuild = function () {
+  const event = scene.event
+  event.touchstartExtens.splice(event.touchstartExtens.indexOf(touchstart), 1)
+  event.touchmoveExtens.splice(event.touchmoveExtens.indexOf(touchmove), 1)
+  event.touchendExtens.splice(event.touchendExtens.indexOf(touchend), 1)
 }

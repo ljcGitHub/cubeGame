@@ -4,7 +4,7 @@ import { getPixelRatio } from '@/core/modules/shared'
 import { state } from '@/store/store'
 import { material } from '@/common/material/tabsButton'
 import Animation from '@/core/Animation'
-import { createBuild } from '@/components/tab-item/build'
+import { createBuild, deleteBuild } from '@/components/tab-item/build'
 
 const WrapperWidth = 375
 const WrapperHeight = 375
@@ -16,8 +16,10 @@ const ITEMMAP = {
   pack: './texture/pack.png',
 }
 const getNow = () => new Date()
+const BOTTOM = 160
 
 export const global = {}
+window.global = global
 
 const click = function () {
   const name = this.option.name
@@ -28,6 +30,8 @@ const click = function () {
   global.clippingPlanes[0]._constant = global.clippingPlanes[0].constant
   global.clippingPlanes[0].constant = 0
   if (state.tabValue !== name) {
+    state.buildSelectCode = ''
+    if (state.tabValue === 'build') deleteBuild()
     const children = [...global.content.children]
     children.forEach(item => global.content.remove(item))
     state.tabValue = name
@@ -58,12 +62,28 @@ const touchstart = function () {
 const touchend = function () {
   this.material.uniforms.status.value = 1.0
 }
+const checkIsClip = function () {
+  global.content.children.forEach(item => {
+    let offsetY = 10000
+    if (item.display === '2.5d') {
+      offsetY = getPixelRatio(item.option.size + item.option.top)
+    } else if (item.display === '2d') {
+      offsetY = getPixelRatio(item.option.height + item.option.top)
+    }
+    if (global.content.position.y > offsetY) {
+      item.clipType = true
+    } else {
+      item.clipType = false
+    }
+  })
+}
+
 
 // 创建弹窗动画
 const createTabsAnimation = function (params) {
   global.sv = 0
   global.ev = 0
-  global.animation = new Animation('Back.easeOut', 400, v => {
+  global.animation = new Animation('Back.easeOut', 300, v => {
     global.wrapper.position.y = global.sv + v * (global.ev - global.sv)
   }, () => {
     // 开启裁剪
@@ -74,7 +94,7 @@ const createTabsAnimation = function (params) {
     global.wrapper.position.y = global.ev
   })
   global.hideY = global.wrapper.position.y
-  global.wrapper.updatePosition(undefined, undefined, -100, 0, undefined)
+  global.wrapper.updatePosition(undefined, undefined, -BOTTOM, 0, undefined)
   global.showY = global.wrapper.position.y
   global.wrapper.position.y = global.hideY
 }
@@ -100,6 +120,7 @@ global.startScroll = 0
 global.endScroll = 0
 global.scrollAnimation = new Animation('Quint.easeOut', 1200, v => {
   global.content.position.y = global.startScroll + v * (global.endScroll - global.startScroll)
+  checkIsClip()
 }, () => {
   global.content.position.y = global.endScroll
 })
@@ -146,14 +167,10 @@ export const createTabs = function (scene, options = OPTIONS) {
   global.close.touchend = touchend
   global.close.material.uniforms.select.value = 1.0
   global.close.click = function () {
+    click.apply({ option: { name: '' } })
     global.scrollAnimation.reset()
     global.animation.setEasing('Quart.easeOut')
     hideTabsAnimation()
-    global.tabHeader.forEach(item => {
-      item.material.uniforms.select.value = 0.0
-    })
-    global.close.visible = false
-    state.tabValue = ''
   }
   global.close.visible = false
 
@@ -161,7 +178,7 @@ export const createTabs = function (scene, options = OPTIONS) {
   createTabsAnimation()
 
   // 滚动内容设置
-  const dsp = getPixelRatio(WrapperHeight) / 2 - window.innerHeight / 2 + getPixelRatio(WrapperHeight / 2 - 120)
+  const dsp = getPixelRatio(WrapperHeight) / 2 - window.innerHeight / 2 + getPixelRatio(WrapperHeight / 2 - BOTTOM - 20)
   global.clippingPlanes = [new THREE.Plane(new THREE.Vector3(0, -1, 0), dsp)]
 
   global.wrapper.touchstart = function (e) {
@@ -182,6 +199,7 @@ export const createTabs = function (scene, options = OPTIONS) {
       global.startTime = timestamp
       global.startY = global.content.position.y
     }
+    checkIsClip()
   }
   global.scrollHeight = WrapperHeight
   global.wrapper.touchend = function (e) {
@@ -194,7 +212,7 @@ export const createTabs = function (scene, options = OPTIONS) {
       const newY = speed * global.scrollHeight / 4
       global.startScroll = global.content.position.y
       global.endScroll = global.content.position.y + newY * distance / Math.abs(distance)
-      const scrollMaxHeight = getPixelRatio(Math.max(0, global.scrollHeight - WrapperHeight + 100))
+      const scrollMaxHeight = getPixelRatio(Math.max(0, global.scrollHeight - WrapperHeight + BOTTOM))
       const scrollMinHeight = 0
       if (global.endScroll > scrollMaxHeight) {
         global.endScroll = scrollMaxHeight
@@ -207,8 +225,11 @@ export const createTabs = function (scene, options = OPTIONS) {
 
   global.wrapper.add(global.close)
   global.wrapper.add(global.content)
+  global.scene = scene
   scene.add(global.wrapper)
 }
 
 export const deleteTabs = function () {
+  global.scene.remove(global.wrapper)
+  global.scene = null
 }

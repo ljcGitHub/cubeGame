@@ -21,6 +21,7 @@ export const clone = function (obj) {
 export const nullFunc = function () { }
 
 export const hasEvents = function (item) {
+  if (item.clipType) return false
   if (item.touchstart) return true
   if (item.touchmove) return true
   if (item.touchend) return true
@@ -32,7 +33,9 @@ export const getEventIntersectObjects = function (arrs, events = {}) {
     if (hasEvents(item)) {
       if (item.display === '2.5d') {
         events[item.uuid] = item.mesh
-      } else {
+      } else if (item.display === '3d') {
+        events[item.uuid] = item.mesh
+      } else{
         events[item.uuid] = item
       }
     }

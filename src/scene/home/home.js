@@ -15,6 +15,6 @@ export default class Home extends Scene{
     }
     createTabs(this)
     createController(this)
-    Game.objectScene.background = new THREE.Color(0x5896f7)
+    Game.objectScene.background = new THREE.Color(0x3f3f3f)
   }
 }

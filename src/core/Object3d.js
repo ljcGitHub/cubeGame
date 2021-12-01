@@ -23,7 +23,7 @@ export default class Object3d extends Physical {
     const box = new THREE.Box3()
     this.mesh.geometry.computeBoundingBox()
     box.copy(this.mesh.geometry.boundingBox).applyMatrix4(this.mesh.matrixWorld)
-    const s = getPixelRatio(size / (box.max.x - box.min.x))
+    const s = size / (box.max.x - box.min.x)
     this.mesh.scale.set(s, s, s)
   }
 

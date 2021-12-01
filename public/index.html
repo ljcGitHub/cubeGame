@@ -9,6 +9,9 @@
   <script src="./common/vconsole.min.js"></script>
   <script>
     new VConsole()
+    console.error('粒子系统')
+    console.error('摇杆')
+    console.error('物理盒子')
   </script>
   <style>
     *{
@@ -50,13 +53,13 @@
 </head>
 
 <body>
-  <div style="width:100vw;height:100vh;" class="moyu">hide</div>
+  <!-- <div style="width:100vw;height:100vh;" class="moyu">hide</div> -->
   <div class="board"></div>
 </body>
   <script>
     var div = document.querySelector('.moyu')
     var hide = false
-    div.addEventListener('click', function() {
+    div && div.addEventListener('click', function() {
       if (hide) {
         div.style.width = '100vw'
         div.style.height = '100vh'

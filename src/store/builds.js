@@ -13,7 +13,17 @@ for (let i = 0; i < 20; i++) {
   })
 }
 
-export default {
+export const getBuildsCode = function (code) {
+  for (const x in builds) {
+    for (let i = 0; i < builds[x].length; i++) {
+      if (code === builds[x][i].code) {
+        return builds[x][i].getModel
+      }
+    }
+  }
+}
+
+export const builds = {
   box: [{
     code: 'Grass',
     asset: Grass.asset,

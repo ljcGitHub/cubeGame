@@ -1,5 +1,5 @@
 import Bus from './bus'
-import builds from './builds'
+import { builds } from './builds'
 
 export const state = {
   // 建造方块

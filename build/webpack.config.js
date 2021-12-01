@@ -40,7 +40,7 @@ const webpackConfig = {
     ]
   },
   //这个参数就可以在webpack中获取到了
-  devtool: process.env.NODE_ENV === 'production' ? false : 'inline-source-map',
+  devtool: process.env.NODE_ENV === 'production' ? 'eval' : 'inline-source-map',
   devServer: {
     //当你有错误的时候在控制台打出
     stats: 'errors-only',
